@@ -12,12 +12,16 @@
   // Overridable per run via -Dudid=<value> (takes precedence over this) or the UDID env var, mirroring "platform".
   "android": {
     "appPath": "apps/ApiDemos-release.apk",
+    // The appId is the package name of the app under test, used for uninstalling/reinstalling the app and for launching it/reopening it after a session.
+    "appId": "io.appium.android.apis",
     "udids": ""
   },
   "ios": {
     // Placeholder values for future iOS support - override locally once an iOS app/simulator is available.
     "platformVersion": "17.5",
     "appPath": "apps/TestApp.app",
+    // The appId is the bundle ID of the app under test, used for uninstalling/reinstalling the app and for launching it/reopening it after a session.
+    "appId": "com.example.TestApp",
     "udids": ""
   },
   "screenshot": {
@@ -48,6 +52,12 @@
     // Android (UiAutomator2) only: auto-grants all requested app permissions at install time
     "autoGrantPermissions": true,
     // iOS (XCUITest) only: auto-accepts iOS system alerts (e.g. permission prompts) as they appear
-    "autoAcceptAlerts": true
+    "autoAcceptAlerts": true,
+    // Appium waits for a new command before killing an idle session; (both platforms): default 120 seconds
+    "newCommandTimeoutSeconds": 120
+  },
+  "wait": {
+    // Default wait timeout for all waitFor* calls (in seconds)
+    "timeoutSeconds": 15
   }
 }

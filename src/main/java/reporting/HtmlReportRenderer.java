@@ -68,6 +68,9 @@ public final class HtmlReportRenderer {
         html.append("<header class=\"report-header\"><h1>").append(escape(title)).append("</h1></header>");
 
         html.append("<div class=\"table-card meta-card\"><table class=\"meta-table\">");
+        appendMetaRow(html, "Platform Version", suite.getPlatformVersion());
+        appendMetaRow(html, "App Under Test", suite.getAppPath());
+        appendMetaRow(html, "Device UDID(s)", suite.getDeviceUdids());
         appendMetaRow(html, "Start Date/Time", format(suite.getStartTime()));
         appendMetaRow(html, "End Date/Time", format(suite.getEndTime()));
         appendMetaRow(html, "Total Test Duration", formatDuration(suite.getStartTime(), suite.getEndTime()));

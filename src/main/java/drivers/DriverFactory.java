@@ -4,6 +4,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Duration;
 
 import config.ConfigManager;
 import enums.Platform;
@@ -27,6 +28,7 @@ public final class DriverFactory {
         Path appPath = Paths.get(config.getAppPath()).toAbsolutePath();
 
         String udids = config.getDeviceUdids();
+        Duration newCommandTimeout = Duration.ofSeconds(config.getNewCommandTimeoutSeconds());
 
         if (config.getPlatform() == Platform.IOS) {
             XCUITestOptions options = new XCUITestOptions();
@@ -35,6 +37,7 @@ public final class DriverFactory {
             options.setNoReset(config.isNoReset());
             options.setFullReset(config.isFullReset());
             options.setAutoAcceptAlerts(config.isAutoAcceptAlerts());
+            options.setNewCommandTimeout(newCommandTimeout);
             if (udids != null) {
                 options.setCapability("df:udids", udids);
             }
@@ -47,6 +50,7 @@ public final class DriverFactory {
         options.setFullReset(config.isFullReset());
         options.setAutoGrantPermissions(config.isAutoGrantPermissions());
         options.setApp(appPath.toString());
+        options.setNewCommandTimeout(newCommandTimeout);
         if (udids != null) {
             options.setCapability("df:udids", udids);
         }

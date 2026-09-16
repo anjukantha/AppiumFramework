@@ -48,7 +48,21 @@ public class ConfigManager {
     public ConfigManager() {
         loadRuntimeConfig("runtimeConfig.jsonc");
         this.platform = resolvePlatform();
+        validateAppPath();
         ACTIVE.set(this);
+    }
+
+    private void validateAppPath() {
+        String key = platformKey("appPath");
+        String appPath = properties.get(key);
+        if (appPath == null || appPath.isBlank()) {
+            throw new IllegalStateException("Missing \"" + key + "\" in runtimeConfig.jsonc for platform '"
+                    + platform.name().toLowerCase() + "'");
+        }
+        File appFile = new File(appPath);
+        if (!appFile.exists()) {
+            throw new IllegalStateException("Configured \"" + key + "\" does not exist: " + appFile.getAbsolutePath());
+        }
     }
 
     /**
@@ -241,5 +255,43 @@ public class ConfigManager {
      */
     public boolean isAutoAcceptAlerts() {
         return Boolean.parseBoolean(properties.getOrDefault("driver.autoAcceptAlerts", "true"));
+    }
+
+    /**
+     * Gets the new command timeout in seconds.
+     *
+     * @return the new command timeout in seconds
+     */
+    public int getNewCommandTimeoutSeconds() {
+        try {
+            return Integer.parseInt(properties.getOrDefault("driver.newCommandTimeout", "120"));
+        } catch (NumberFormatException e) {
+            return 120;
+        }
+    }
+
+    /**
+     * Gets the wait timeout in seconds.
+     *
+     * @return the wait timeout in seconds
+     */
+    public int getWaitTimeoutSeconds() {
+        try {
+            return Integer.parseInt(properties.getOrDefault("wait.timeoutSeconds", "15"));
+        } catch (NumberFormatException e) {
+            return 15;
+        }
+    }
+
+    /**
+     * Gets the appId (package name for Android, bundle ID for iOS) of the app under
+     * test, used for uninstalling/reinstalling the app and for launching
+     * it/reopening it after a session.
+     *
+     * @return the appId of the app under test
+     */
+    public String getAppId() {
+        String appId = properties.get(platformKey("appId"));
+        return (appId == null || appId.isBlank()) ? null : appId.trim();
     }
 }

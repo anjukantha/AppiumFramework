@@ -1,6 +1,7 @@
 package drivers;
 
 import io.appium.java_client.AppiumDriver;
+import io.appium.java_client.InteractsWithApps;
 
 /**
  * Holds the active driver per thread so parallel test execution doesn't share
@@ -26,6 +27,16 @@ public final class DriverManager {
         if (driver != null) {
             driver.quit();
             DRIVER.remove();
+        }
+    }
+
+    // Restarts the app under test by terminating it and then activating it again.
+    public static void restartApp(String appId) {
+        AppiumDriver driver = DRIVER.get();
+        if (driver instanceof InteractsWithApps && appId != null) {
+            InteractsWithApps app = (InteractsWithApps) driver;
+            app.terminateApp(appId);
+            app.activateApp(appId);
         }
     }
 }

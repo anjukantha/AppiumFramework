@@ -16,6 +16,7 @@ import drivers.DriverManager;
 import enums.ScreenshotMode;
 import enums.StepStatus;
 import enums.TestStatus;
+import io.appium.java_client.AppiumDriver;
 import reporting.HtmlReportRenderer;
 import reporting.ReportManager;
 import reporting.model.StepLog;
@@ -37,8 +38,16 @@ public class ReportListener implements ITestListener, ISuiteListener {
         suiteRecord.setTeamName(config.getTeamName());
         suiteRecord.setRunType(config.getRunType());
         suiteRecord.setEnvironment(config.getPlatform().name());
+        suiteRecord.setPlatformVersion(devicePlatformVersion(config));
+        suiteRecord.setAppPath(config.getAppPath());
+        suiteRecord.setDeviceUdids(config.getDeviceUdids() != null ? config.getDeviceUdids() : "auto-allocated");
         suiteRecord.setPlannedCount(suite.getAllMethods().size());
         suiteRecord.setStartTime(ZonedDateTime.now(ZoneId.systemDefault()));
+    }
+
+    private String devicePlatformVersion(ConfigManager config) {
+        String version = config.getPlatformVersion();
+        return (version == null || version.isBlank()) ? "auto" : version;
     }
 
     @Override
@@ -100,6 +109,7 @@ public class ReportListener implements ITestListener, ISuiteListener {
             attempt.finish(status, errorMessage);
             if (status == TestStatus.FAIL) {
                 attempt.addStep(new StepLog(StepStatus.FAIL, errorDetail(result), null));
+                attachPageSource(attempt);
             }
             if (shouldCapture(requiredMode)) {
                 attachScreenshot(attempt, result, status);
@@ -120,6 +130,21 @@ public class ReportListener implements ITestListener, ISuiteListener {
         StringWriter sw = new StringWriter();
         throwable.printStackTrace(new PrintWriter(sw));
         return sw.toString();
+    }
+
+    private void attachPageSource(TestAttempt attempt) {
+        AppiumDriver driver = DriverManager.getDriver();
+        if (driver == null) {
+            return;
+        }
+        try {
+            String pageSource = driver.getPageSource();
+            if (pageSource != null && !pageSource.isBlank()) {
+                attempt.addStep(new StepLog(StepStatus.FAIL, "Page Source at failure:\n" + pageSource, null));
+            }
+        } catch (RuntimeException e) {
+            attempt.addStep(new StepLog(StepStatus.WARN, "Could not capture page source:\n " + e.getMessage(), null));
+        }
     }
 
     private void attachScreenshot(TestAttempt attempt, ITestResult result, TestStatus status) {

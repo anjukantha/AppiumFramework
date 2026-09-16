@@ -11,6 +11,9 @@ public class SuiteRecord {
     private String teamName = "";
     private String runType = "";
     private String environment = "";
+    private String platformVersion = "";
+    private String appPath = "";
+    private String deviceUdids = "";
     private int plannedCount;
     private ZonedDateTime startTime;
     private ZonedDateTime endTime;
@@ -50,6 +53,30 @@ public class SuiteRecord {
 
     public void setEnvironment(String environment) {
         this.environment = environment;
+    }
+
+    public String getPlatformVersion() {
+        return platformVersion;
+    }
+
+    public void setPlatformVersion(String platformVersion) {
+        this.platformVersion = platformVersion;
+    }
+
+    public String getAppPath() {
+        return appPath;
+    }
+
+    public void setAppPath(String appPath) {
+        this.appPath = appPath;
+    }
+
+    public String getDeviceUdids() {
+        return deviceUdids;
+    }
+
+    public void setDeviceUdids(String deviceUdids) {
+        this.deviceUdids = deviceUdids;
     }
 
     public int getPlannedCount() {
