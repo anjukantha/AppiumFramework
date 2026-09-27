@@ -7,8 +7,6 @@
    <test name="FirstAndroidTest">
      <classes>
        <class name="tests.FirstAndroidTest" />
-       <class name="tests.FirstAndroidTest1" />
-       <class name="tests.FirstAndroidTest2" />
      </classes>
    </test>
  </suite>

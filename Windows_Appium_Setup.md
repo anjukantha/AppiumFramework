@@ -549,7 +549,35 @@ Create `testng.xml`. Add a second `<test>` block for iOS once `FirstIOSTest.java
  - Point `appium.server.url` at this same Appium server; no other framework changes are required. Give each test class its own `<test>` block in `testng.xml` with `parallel="tests"`/`thread-count` on `<suite>` to actually run them concurrently (this also avoids a known TestNG `GraphOrchestrator` NullPointerException seen when grouping classes under `parallel="classes"`/`"methods"` instead).
  - To pin a run to one or more specific devices instead of letting the plugin auto-allocate, set `android.udids`/`ios.udids` in `runtimeConfig.jsonc` to a comma-separated list of device UDIDs (for Android emulators, the UDID is the serial shown by `adb devices`, e.g. `emulator-5554`), or override per run with `-Dudid=emulator-5554` (takes precedence over the config file). This maps to the device-farm plugin's `df:udids` capability.
  
- ## 9. Setup Checklist
+ ## 9. Appium Inspector
+
+ Appium Inspector is a standlone desktop app (separate from the `appium` server) for browsing an app's element tree and grabbing locators to use in page objects - no Java project changes needed to use it.
+
+ - Install: download the installer for your OS from the release page.
+ - Start the Appium server first, the same server the tests connect to.
+ - In Inspector's tab, set the Remote host to `127.0.0.1` (or the host machine's LAN/VPN if Inspector runs elsewhere), Remote Port `4723`, Remote Path `/` (this project doesn't use `wd/hub`).
+ - Under Capability -> JSON Representation, use the same capabilities `DriverFactory` sets. 
+ Android:
+  ```json
+  {
+    "platformName": "Android",
+    "appium:automationName": "UiAutomator2",
+    "appium:app": "C:\\Projects\\Appium-Framework\\Apps\\ApiDemos-release.apk",
+    "appium:noReset": false,
+    "appium:autoGrantPermissions": true
+  } 
+  ```
+ iOS:
+  ```json
+  {
+    "platformName": "iOS",
+    "appium:automationName": "XCUITest",
+    "appium:app": "/absolute/path/to/TestApp.app",
+    "appium:platformVersion": "17.5"
+  }
+  ```
+
+ ## 10. Setup Checklist
  
  ### General
  

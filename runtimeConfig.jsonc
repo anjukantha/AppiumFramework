@@ -1,63 +1,45 @@
 {
-  // Appium server URL used for all platforms unless overridden
-  "appium.server.url": "http://127.0.0.1:4723",
-  // Active platform ("android" or "ios"). Overridable via -Dplatform=<value> or the PLATFORM env var, which both take precedence over this.
-  "platform": "android",
-  // Device/app details for each platform. appium-device-farm handles device allocation, so no device name/identifier
-  // is configured here directly - see "udids" below to pin specific device(s) instead.
-  //
-  // Optional "udids": comma-separated device UDIDs (e.g. "emulator-5554,emulator-5556" from `adb devices`) to pin
-  // the appium-device-farm plugin's df:udids capability to, so tests only run on those specific device(s) instead
-  // of whichever free one the plugin auto-allocates. Leave empty/omit to let the plugin choose automatically.
-  // Overridable per run via -Dudid=<value> (takes precedence over this) or the UDID env var, mirroring "platform".
-  "android": {
-    "appPath": "apps/ApiDemos-release.apk",
-    // The appId is the package name of the app under test, used for uninstalling/reinstalling the app and for launching it/reopening it after a session.
-    "appId": "io.appium.android.apis",
-    "udids": ""
-  },
-  "ios": {
-    // Placeholder values for future iOS support - override locally once an iOS app/simulator is available.
-    "platformVersion": "17.5",
-    "appPath": "apps/TestApp.app",
-    // The appId is the bundle ID of the app under test, used for uninstalling/reinstalling the app and for launching it/reopening it after a session.
-    "appId": "com.example.TestApp",
-    "udids": ""
-  },
-  "screenshot": {
-    // Test-level capture policy: controls the single screenshot taken at test end based on its final result:
-    // "failure" (default), "pass", "all" (end-of-test screenshot always taken), or "none"
-    "mode": "failure",
-    // When true, ALSO attaches a screenshot to every logged step (Log.info/pass/warn/error) in addition to the
-    // one from "mode" above, giving a full visual timeline instead of just a final snapshot; heavier, so default false
-    "onStep": true
-  },
-  // Shown in the HTML report header as "<productName> - <teamName> - <runType> - <environment>"
-  "report": {
-    "productName": "ApiDemos",
-    "teamName": "QA Automation",
-    "runType": "Regression"
-  },
-  "retry": {
-    // Number of times a failed @Test is retried before being reported as failed; 0 disables retries
-    "count": 1
-  },
-  "driver": {
-    // Whether to keep app data/state between sessions instead of resetting it (both platforms)
-    "noReset": false,
-    // Whether to uninstall/reinstall the app before the session, for a completely clean state (both platforms)
-    "fullReset": false,
-    // Android (UiAutomator2) only: suppresses errors from apps built against restricted/hidden APIs
-    "ignoreHiddenApiPolicyError": true,
-    // Android (UiAutomator2) only: auto-grants all requested app permissions at install time
-    "autoGrantPermissions": true,
-    // iOS (XCUITest) only: auto-accepts iOS system alerts (e.g. permission prompts) as they appear
-    "autoAcceptAlerts": true,
-    // Appium waits for a new command before killing an idle session; (both platforms): default 120 seconds
-    "newCommandTimeoutSeconds": 120
-  },
-  "wait": {
-    // Default wait timeout for all waitFor* calls (in seconds)
-    "timeoutSeconds": 15
-  }
-}
+   "execution": {
+     "platform": "android",
+     "retryCount": 1,
+     "waitTimeoutSeconds": 15
+   },
+   "appium": {
+     "serverUrl": "http://127.0.0.1:4723",
+     "android": {
+       "app": "apps/ApiDemos-release.apk",
+       "appPackage": "io.appium.android.apis",
+       "platformVersion": "",
+       "udids": ""
+     },
+     "ios": {
+       "app": "apps/TestApp.app",
+       "bundleId": "",
+       "platformVersion": "17.5",
+       "udids": ""
+     }
+   },
+   "capabilities": {
+     "common": {
+       "noReset": true,
+       "fullReset": false,
+       "newCommandTimeout": 120
+     },
+     "android": {
+       "ignoreHiddenApiPolicyError": true,
+       "autoGrantPermissions": true
+     },
+     "ios": {
+       "autoAcceptAlerts": true
+     }
+   },
+   "screenshot": {
+     "mode": "failure",
+     "onStep": false
+   },
+   "report": {
+     "productName": "ApiDemos",
+     "teamName": "QA Automation",
+     "runType": "Regression"
+   }
+ }

@@ -7,7 +7,7 @@ import io.appium.java_client.pagefactory.AndroidBy;
 import io.appium.java_client.pagefactory.iOSXCUITFindBy;
 
 public class ApiDemosHomePage extends BasePage {
-    @AndroidBy(accessibility = "Accessibility")
+    @AndroidBy(xpath = "//*[@text='Accessibility']")
     @iOSXCUITFindBy(accessibility = "Accessibility")
     private WebElement accessibilityMenuItem;
 
