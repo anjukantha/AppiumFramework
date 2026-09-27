@@ -4,6 +4,8 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Map;
+import java.util.Set;
 
 import org.testng.ISuite;
 import org.testng.ISuiteListener;
@@ -17,6 +19,8 @@ import enums.ScreenshotMode;
 import enums.StepStatus;
 import enums.TestStatus;
 import io.appium.java_client.AppiumDriver;
+import io.appium.java_client.android.StartsActivity;
+import org.openqa.selenium.logging.LogEntries;
 import reporting.HtmlReportRenderer;
 import reporting.ReportManager;
 import reporting.model.StepLog;
@@ -33,6 +37,7 @@ public class ReportListener implements ITestListener, ISuiteListener {
     @Override
     public void onStart(ISuite suite) {
         ConfigManager config = new ConfigManager();
+        ReportManager.startRun();
         SuiteRecord suiteRecord = ReportManager.getSuite();
         suiteRecord.setProductName(config.getProductName());
         suiteRecord.setTeamName(config.getTeamName());
@@ -110,6 +115,9 @@ public class ReportListener implements ITestListener, ISuiteListener {
             if (status == TestStatus.FAIL) {
                 attempt.addStep(new StepLog(StepStatus.FAIL, errorDetail(result), null));
                 attachPageSource(attempt);
+                attachAppState(attempt);
+                attachDeviceDetails(attempt);
+                attachServerLogs(attempt);
             }
             if (shouldCapture(requiredMode)) {
                 attachScreenshot(attempt, result, status);
@@ -145,6 +153,74 @@ public class ReportListener implements ITestListener, ISuiteListener {
         } catch (RuntimeException e) {
             attempt.addStep(new StepLog(StepStatus.WARN, "Could not capture page source:\n " + e.getMessage(), null));
         }
+    }
+
+    private void attachAppState(TestAttempt attempt) {
+        AppiumDriver driver = DriverManager.getDriver();
+        if (driver == null) {
+            return;
+        }
+        try {
+            String state;
+            if (driver instanceof StartsActivity) {
+                StartsActivity androidDriver = (StartsActivity) driver;
+                state = "Current activity: " + androidDriver.currentActivity()
+                        + "\nCurrent package: " + androidDriver.getCurrentPackage();
+            } else {
+                Object bundleId = driver.getCapabilities().getCapability("bundleId");
+                Object app = driver.getCapabilities().getCapability("app");
+                state = "Bundle ID: " + valueOrUnknown(bundleId)
+                        + "\nApp: " + valueOrUnknown(app);
+            }
+            attempt.addStep(new StepLog(StepStatus.INFO, "App state at failure:\n" + state, null));
+        } catch (RuntimeException e) {
+            addDiagnosticWarning(attempt, "Could not capture app state", e);
+        }
+    }
+
+    private void attachDeviceDetails(TestAttempt attempt) {
+        AppiumDriver driver = DriverManager.getDriver();
+        if (driver == null) {
+            return;
+        }
+        try {
+            Map<String, Object> capabilities = driver.getCapabilities().asMap();
+            String details = "Platform: " + valueOrUnknown(capabilities.get("platformName"))
+                    + "\nPlatform version: " + valueOrUnknown(capabilities.get("platformVersion"))
+                    + "\nDevice: " + valueOrUnknown(capabilities.get("deviceName"))
+                    + "\nUDID: " + valueOrUnknown(capabilities.get("udid"));
+            attempt.addStep(new StepLog(StepStatus.INFO, "Device details at failure:\n" + details, null));
+        } catch (RuntimeException e) {
+            addDiagnosticWarning(attempt, "Could not capture device details", e);
+        }
+    }
+
+    private void attachServerLogs(TestAttempt attempt) {
+        AppiumDriver driver = DriverManager.getDriver();
+        if (driver == null) {
+            return;
+        }
+        try {
+            Set<String> logTypes = driver.manage().logs().getAvailableLogTypes();
+            if (!logTypes.contains("server")) {
+                attempt.addStep(new StepLog(StepStatus.INFO,
+                        "Appium server logs are not available from this server.", null));
+                return;
+            }
+            LogEntries entries = driver.manage().logs().get("server");
+            attempt.addStep(new StepLog(StepStatus.INFO,
+                    "Appium server logs at failure:\n" + entries, null));
+        } catch (RuntimeException e) {
+            addDiagnosticWarning(attempt, "Could not capture Appium server logs", e);
+        }
+    }
+
+    private void addDiagnosticWarning(TestAttempt attempt, String message, RuntimeException error) {
+        attempt.addStep(new StepLog(StepStatus.WARN, message + ": " + error.getMessage(), null));
+    }
+
+    private String valueOrUnknown(Object value) {
+        return value == null || value.toString().isBlank() ? "unknown" : value.toString();
     }
 
     private void attachScreenshot(TestAttempt attempt, ITestResult result, TestStatus status) {

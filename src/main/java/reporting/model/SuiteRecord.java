@@ -23,6 +23,20 @@ public class SuiteRecord {
         tests.add(test);
     }
 
+    public void reset() {
+        productName = "";
+        teamName = "";
+        runType = "";
+        environment = "";
+        platformVersion = "";
+        appPath = "";
+        deviceUdids = "";
+        plannedCount = 0;
+        startTime = null;
+        endTime = null;
+        tests.clear();
+    }
+
     public String getProductName() {
         return productName;
     }

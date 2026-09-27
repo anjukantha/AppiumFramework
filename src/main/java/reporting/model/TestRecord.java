@@ -12,13 +12,15 @@ import enums.TestStatus;
  */
 public class TestRecord {
 
+    private final String testKey;
     private final String testName;
     private final String platform;
     private final ZonedDateTime startTime = ZonedDateTime.now(ZoneId.systemDefault());
     private ZonedDateTime endTime;
     private final List<TestAttempt> attempts = new CopyOnWriteArrayList<>();
 
-    public TestRecord(String testName, String platform) {
+    public TestRecord(String testKey, String testName, String platform) {
+        this.testKey = testKey;
         this.testName = testName;
         this.platform = platform;
     }
@@ -43,6 +45,10 @@ public class TestRecord {
 
     public String getTestName() {
         return testName;
+    }
+
+    public String getTestKey() {
+        return testKey;
     }
 
     public String getPlatform() {

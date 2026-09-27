@@ -17,9 +17,9 @@ import reporting.model.TestRecord;
  */
 public final class ReportManager {
 
-    private static final String RUN_TIMESTAMP = LocalDateTime.now(ZoneId.systemDefault())
-            .format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss"));
-    private static final String REPORT_DIR = "test-output" + File.separator + RUN_TIMESTAMP;
+    private static final DateTimeFormatter RUN_TIMESTAMP_FORMAT =
+        DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss_SSS");
+    private static volatile String reportDir = createReportDir();
 
     private static final SuiteRecord SUITE = new SuiteRecord();
 
@@ -34,20 +34,28 @@ public final class ReportManager {
     }
 
     public static String getReportDir() {
-        return REPORT_DIR;
+        return reportDir;
     }
 
     public static String getScreenshotDir() {
-        return REPORT_DIR + File.separator + "screenshots";
+        return reportDir + File.separator + "screenshots";
     }
 
     public static SuiteRecord getSuite() {
         return SUITE;
     }
 
+    public static synchronized void startRun() {
+        TESTS_BY_KEY.clear();
+        CURRENT_TEST.remove();
+        CURRENT_ATTEMPT.remove();
+        SUITE.reset();
+        reportDir = createReportDir();
+    }
+
     public static TestAttempt startTest(String testKey, String testName, String platform) {
         TestRecord testRecord = TESTS_BY_KEY.computeIfAbsent(testKey, key -> {
-            TestRecord created = new TestRecord(testName, platform);
+            TestRecord created = new TestRecord(testKey, testName, platform);
             SUITE.addTest(created);
             return created;
         });
@@ -68,5 +76,10 @@ public final class ReportManager {
         }
         CURRENT_TEST.remove();
         CURRENT_ATTEMPT.remove();
+    }
+
+    private static String createReportDir() {
+        String timestamp = LocalDateTime.now(ZoneId.systemDefault()).format(RUN_TIMESTAMP_FORMAT);
+        return "test-output" + File.separator + timestamp;
     }
 }

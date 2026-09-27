@@ -44,7 +44,8 @@ public final class HtmlReportRenderer {
     }
 
     private static String testFileName(TestRecord test) {
-        return sanitize(test.getTestName()) + ".html";
+        String key = test.getTestKey();
+        return sanitize(key) + "_" + Integer.toHexString(key.hashCode()) + ".html";
     }
 
     private static String sanitize(String value) {
